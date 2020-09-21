@@ -28,8 +28,11 @@ public class VoxelMesher : ModuleRules
 			new string[]
 			{
 				"Core",
+				"CoreUObject",
+				"Engine",
+				"ProceduralMeshComponent",
 				"VoxelMesherLibrary",
-				"Projects"
+				"Projects",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

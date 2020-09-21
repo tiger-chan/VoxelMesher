@@ -13,7 +13,7 @@ public class VoxelMesherLibrary : ModuleRules
 		var plugin_dir = Path.Combine(ModuleDirectory);
 
 		PublicIncludePaths.AddRange(new string[] {
-				// Path.Combine(plugin_dir, "lib-gradient-noise", "src")
+				Path.Combine(plugin_dir, "lib-voxel-mesher", "src")
 			});
 	}
 }
