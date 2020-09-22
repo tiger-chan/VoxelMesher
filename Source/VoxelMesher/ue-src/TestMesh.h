@@ -7,6 +7,14 @@
 #include "Materials/MaterialInterface.h"
 #include "TestMesh.generated.h"
 
+UENUM(BlueprintType)
+enum class ETestShape : uint8
+{
+	Block,
+	Hill,
+	Valley
+};
+
 UCLASS(BlueprintType)
 class VOXELMESHER_API ATestMesh : public AActor {
 	GENERATED_BODY()
@@ -24,4 +32,10 @@ class VOXELMESHER_API ATestMesh : public AActor {
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	UMaterialInterface* material{nullptr};
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	ETestShape shape;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	int32 block_size;
 };

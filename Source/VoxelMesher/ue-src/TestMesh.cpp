@@ -1,6 +1,7 @@
 
 #include "TestMesh.h"
 #include "lib-voxel-mesher/simple_voxel_mesher.hpp"
+#include "lib-voxel-mesher/culling_voxel_mesher.hpp"
 
 namespace
 {
@@ -19,7 +20,7 @@ static std::tuple<std::vector<int32_t>, tc::vector3i> make_voxels(tc::vector3i l
 			}
 		}
 	}
-	return std::make_tuple( v, d );
+	return std::make_tuple(v, d);
 }
 
 static std::tuple<std::vector<int32_t>, tc::vector3i> big_block(size_t size)
@@ -31,20 +32,34 @@ static std::tuple<std::vector<int32_t>, tc::vector3i> big_block(size_t size)
 	return std::make_tuple(result, tc::vector3i{ s, s, s });
 }
 
-static std::tuple<std::vector<int32_t>, tc::vector3i> hill()
+static std::tuple<std::vector<int32_t>, tc::vector3i> hill(size_t size)
 {
-	return make_voxels(tc::vector3i{ -16, 0, -16 }, tc::vector3i{ 16, 16, 16 },
-			   [](auto i, auto j, auto k) {
-				   return j <= 16 * exp(-(i * i + k * k) / 64.0);
+	auto s = static_cast<int32_t>(size);
+	return make_voxels(tc::vector3i{ -s, -s,0 }, tc::vector3i{ s, s, s }, [s](auto i, auto j, auto k) {
+				   return j <= s * exp(-(i * i + k * k) / 64.0);
 			   });
 }
 
-static std::tuple<std::vector<int32_t>, tc::vector3i> valley()
+static std::tuple<std::vector<int32_t>, tc::vector3i> valley(size_t size)
 {
-	return make_voxels(tc::vector3i{ 0, 0, 0 }, tc::vector3i{ 32, 32, 32 },
-			   [](auto i, auto j, auto k) {
-				   return j <= (i*i + k*k) * 31.0 / (32*32*2) + 1;
+	auto s = static_cast<int32_t>(size);
+	return make_voxels(tc::vector3i{ 0, 0, 0 }, tc::vector3i{ s, s, s },
+			   [s](auto i, auto j, auto k) {
+				   return j <= (i * i + k * k) * 31.0 / (s * s * 2) + 1;
 			   });
+}
+
+static std::tuple<std::vector<int32_t>, tc::vector3i> build_shape(ETestShape shape, size_t size = 1)
+{
+	switch (shape) {
+	default:
+	case ETestShape::Block:
+		return big_block(size);
+	case ETestShape::Hill:
+		return hill(size);
+	case ETestShape::Valley:
+		return valley(size);
+	}
 }
 
 } // namespace
@@ -65,11 +80,10 @@ void ATestMesh::BeginPlay()
 {
 	Super::BeginPlay();
 
-	tc::simple_voxel_mesher mesher{};
-	static constexpr size_t size = 10;
-	auto &&[block, dimensions] = valley(); //big_block(size);
-	auto result = mesher.eval(std::begin(block), std::end(block), dimensions.x, dimensions.y,
-				  dimensions.z);
+	auto &&[block, dimensions] = build_shape(shape, block_size);
+
+	tc::culling_voxel_mesher mesher{ dimensions.x, dimensions.y, dimensions.z };
+	auto result = mesher.eval(std::begin(block), std::end(block));
 
 	TArray<FVector> vertices;
 	TArray<int32> triangles;
