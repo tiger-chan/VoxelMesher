@@ -21,7 +21,7 @@ class VOXELMESHER_API UProceduralVoxelMeshComponent : public UProceduralMeshComp
 
     public:
 	template <typename Iter, typename Mesher, typename Predicate>
-	void draw_voxels(Iter &&begin, Iter &&end, Mesher &mesher, Predicate &&pred,
+	void draw_voxels(Iter begin, Iter end, Mesher &mesher, Predicate &&pred,
 			 bool create_collision = false)
 	{
 		auto result =
