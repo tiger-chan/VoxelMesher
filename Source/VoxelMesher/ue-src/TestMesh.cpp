@@ -1,7 +1,7 @@
 
 #include "TestMesh.h"
-#include "lib-voxel-mesher/simple_voxel_mesher.hpp"
-#include "lib-voxel-mesher/culling_voxel_mesher.hpp"
+#include "weaver/mesher/simple_voxel_mesher.hpp"
+#include "weaver/mesher/culling_voxel_mesher.hpp"
 
 namespace
 {

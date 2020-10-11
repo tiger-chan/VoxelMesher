@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "ProceduralMeshComponent.h"
-#include "lib-voxel-mesher/fwd.hpp"
+#include "weaver/mesher/fwd.hpp"
 
 #include "procedural_voxel_mesh_component.generated.h"
 

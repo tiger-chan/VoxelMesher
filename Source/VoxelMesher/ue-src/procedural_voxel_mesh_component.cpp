@@ -1,5 +1,5 @@
 #include "procedural_voxel_mesh_component.h"
-#include "lib-voxel-mesher/mesher_result.hpp"
+#include "weaver/mesher/mesher_result.hpp"
 
 
 FVoxelMeshData UProceduralVoxelMeshComponent::generate_meshdata(const tc::mesher_result& result)
