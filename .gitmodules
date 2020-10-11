@@ -1,3 +1,4 @@
-[submodule "Source/ThirdParty/VoxelMesherLibrary/lib-voxel-mesher"]
-	path = Source/ThirdParty/VoxelMesherLibrary/lib-voxel-mesher
-	url = https://github.com/tiger-chan/lib-voxel-mesher.git
+
+[submodule "Source/ThirdParty/VoxelMesherLibrary/weaver"]
+	path = Source/ThirdParty/VoxelMesherLibrary/weaver
+	url = https://github.com/tiger-chan/weaver.git
