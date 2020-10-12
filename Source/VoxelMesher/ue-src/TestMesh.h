@@ -5,7 +5,28 @@
 #include "GameFramework/Actor.h"
 #include "ProceduralMeshComponent.h"
 #include "Materials/MaterialInterface.h"
+#include "weaver/mesher.hpp"
 #include "TestMesh.generated.h"
+
+namespace tc
+{
+	namespace weaver
+	{
+		template<>
+		struct voxel_reader<int32_t>
+		{
+			bool visible(const int32_t& v) const
+			{
+				return !(v == 0 || v == unset_voxel_id);
+			}
+
+			voxel_id_t operator()(const int32_t& v) const
+			{
+				return v;
+			}
+		};
+	}
+}
 
 UENUM(BlueprintType)
 enum class ETestShape : uint8

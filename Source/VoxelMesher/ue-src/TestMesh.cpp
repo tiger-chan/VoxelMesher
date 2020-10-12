@@ -1,7 +1,6 @@
 
 #include "TestMesh.h"
-#include "weaver/mesher/simple_voxel_mesher.hpp"
-#include "weaver/mesher/culling_voxel_mesher.hpp"
+#include "weaver/mesher.hpp"
 
 namespace
 {
@@ -82,7 +81,7 @@ void ATestMesh::BeginPlay()
 
 	auto &&[block, dimensions] = build_shape(shape, block_size);
 
-	tc::culling_voxel_mesher mesher{ dimensions.x, dimensions.y, dimensions.z };
+	tc::culling<int32_t> mesher{ dimensions.x, dimensions.y, dimensions.z, true };
 	auto result = mesher.eval(std::begin(block), std::end(block));
 
 	TArray<FVector> vertices;

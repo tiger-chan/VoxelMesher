@@ -20,12 +20,11 @@ class VOXELMESHER_API UProceduralVoxelMeshComponent : public UProceduralMeshComp
 	GENERATED_BODY()
 
     public:
-	template <typename Iter, typename Mesher, typename Predicate>
-	void draw_voxels(Iter begin, Iter end, Mesher &mesher, Predicate &&pred,
-			 bool create_collision = false)
+	template <typename Iter, typename Mesher>
+	void draw_voxels(Iter begin, Iter end, Mesher &mesher, bool create_collision = false)
 	{
 		auto result =
-			mesher.eval(std::forward<Iter>(begin), std::forward<Iter>(end), std::forward<Predicate>(pred));
+			mesher.eval(std::forward<Iter>(begin), std::forward<Iter>(end));
 		auto voxel_data = generate_meshdata(result);
 
 		CreateMeshSection_LinearColor(
