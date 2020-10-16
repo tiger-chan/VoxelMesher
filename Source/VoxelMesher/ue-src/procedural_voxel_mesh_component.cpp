@@ -6,7 +6,7 @@ TArray<FVoxelMeshData> UProceduralVoxelMeshComponent::generate_meshdata(const tc
 {
 	TArray<FVoxelMeshData> results;
 	std::unordered_map<tc::weaver::voxel_id_t, uint32_t> voxel_types;
-	const auto alloc_vert_size = result.vertices.size() / 2;
+	const auto alloc_vert_size = (result.quads.size() * 4) / 2;
 	const auto alloc_quad_size = (result.quads.size() * 6) / 2;
 
 	auto get_mesh_data = [&results, &voxel_types, alloc_vert_size, alloc_quad_size](tc::weaver::voxel_id_t id) -> FVoxelMeshData& {
@@ -31,8 +31,9 @@ TArray<FVoxelMeshData> UProceduralVoxelMeshComponent::generate_meshdata(const tc
 		auto& r = get_mesh_data(quad.type_id);
 		auto first = r.vertices.Num();
 		auto uv = std::begin(quad.uv);
+
 		for (auto q : quad) {
-			auto &vert = verts[q];
+			auto &vert = q;
 			r.vertices.Emplace(FVector{ static_cast<float>(vert.x) * 100.0f - 50.0f,
 						  static_cast<float>(vert.y) * 100.0f - 50.0f,
 						  static_cast<float>(vert.z) * 100.0f - 50.0f });
@@ -45,14 +46,12 @@ TArray<FVoxelMeshData> UProceduralVoxelMeshComponent::generate_meshdata(const tc
 		}
 
 		// use offset from "first" for the index of triangles.
-		for (auto i = 0; i < 3; ++i) {
-			auto j = (3 - i) % 3;
-			r.triangles.Emplace(first + j);
+		for (auto& i : quad.get_triange(tc::quad::triangle::first, tc::quad::rotation::cw)) {
+			r.triangles.Emplace(first + i);
 		}
 
-		for (auto i = 0; i < 3; ++i) {
-			auto j = (4 - i) % 4;
-			r.triangles.Emplace(first + j);
+		for (auto& i : quad.get_triange(tc::quad::triangle::second, tc::quad::rotation::cw)) {
+			r.triangles.Emplace(first + i);
 		}
 	}
 

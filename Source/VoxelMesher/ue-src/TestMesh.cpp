@@ -81,9 +81,13 @@ void ATestMesh::BeginPlay()
 
 	auto &&[block, dimensions] = build_shape(shape, block_size);
 
-	tc::culling<int32_t> mesher{ dimensions.x, dimensions.y, dimensions.z, true };
-	auto result = mesher.eval(std::begin(block), std::end(block));
+	tc::simple<int32_t> mesher{ dimensions.x, dimensions.y, dimensions.z, true };
+	result = mesher.eval(std::begin(block), std::end(block));
+}
 
+void ATestMesh::Step()
+{
+	++step;
 	TArray<FVector> vertices;
 	TArray<int32> triangles;
 	TArray<FVector> normals;
@@ -97,11 +101,13 @@ void ATestMesh::BeginPlay()
 	triangles.Reserve(result.quads.size() * 6);
 
 	auto &verts = result.vertices;
-	for (auto &quad : result.quads) {
+	for (auto k = 0; k < result.quads.size() && k < step; ++k) {
+		const auto &quad = result.quads[k];
 		auto first = vertices.Num();
 		auto uv = std::begin(quad.uv);
+
 		for (auto q : quad) {
-			auto &vert = verts[q];
+			auto &vert = q;
 			vertices.Emplace(FVector{ static_cast<float>(vert.x) * 100.0f - 50.0f,
 						  static_cast<float>(vert.y) * 100.0f - 50.0f,
 						  static_cast<float>(vert.z) * 100.0f - 50.0f });
@@ -114,14 +120,12 @@ void ATestMesh::BeginPlay()
 		}
 
 		// use offset from "first" for the index of triangles.
-		for (auto i = 0; i < 3; ++i) {
-			auto j = (3 - i) % 3;
-			triangles.Emplace(first + j);
+		for (auto& i : quad.get_triange(tc::quad::triangle::first, tc::quad::rotation::cw)) {
+			triangles.Emplace(first + i);
 		}
 
-		for (auto i = 0; i < 3; ++i) {
-			auto j = (4 - i) % 4;
-			triangles.Emplace(first + j);
+		for (auto& i : quad.get_triange(tc::quad::triangle::second, tc::quad::rotation::cw)) {
+			triangles.Emplace(first + i);
 		}
 	}
 
@@ -129,8 +133,15 @@ void ATestMesh::BeginPlay()
 	// tangents.Init(FProcMeshTangent(1.0f, 0.0f, 0.0f), vertices.Num());
 
 	//Function that creates mesh section
+	procedural_mesh->ClearAllMeshSections();
 	procedural_mesh->CreateMeshSection_LinearColor(0, vertices, triangles, normals, uvs,
 						       vertexColors, tangents, false);
 
 	procedural_mesh->SetMaterial(0, material);
+}
+
+void ATestMesh::CompleteSteps()
+{
+	step = result.quads.size();
+	Step();
 }

@@ -59,4 +59,13 @@ class VOXELMESHER_API ATestMesh : public AActor {
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	int32 block_size;
+
+	UFUNCTION(BlueprintCallable)
+	void Step();
+
+	UFUNCTION(BlueprintCallable)
+	void CompleteSteps();
+
+	tc::mesher_result result;
+	int32_t step{0};
 };
