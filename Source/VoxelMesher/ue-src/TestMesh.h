@@ -24,6 +24,14 @@ namespace tc
 			{
 				return v;
 			}
+
+			std::vector<voxel_def> operator()(const int32_t &, voxel_face vf) const
+			{
+				vector3d min{0.0, 0.0, 0.0};
+				vector3d max{1.0, 1.0, 1.0};
+				vector3d translation{ 5.0, 2.0, 1.0 };
+				return std::vector<voxel_def>{ voxel_def{min, max, translation} };
+			}
 		};
 	}
 }
@@ -34,6 +42,13 @@ enum class ETestShape : uint8
 	Block,
 	Hill,
 	Valley
+};
+
+UENUM(BlueprintType)
+enum class EMesherType : uint8
+{
+	Simple,
+	Culling,
 };
 
 UCLASS(BlueprintType)
@@ -56,6 +71,9 @@ class VOXELMESHER_API ATestMesh : public AActor {
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	ETestShape shape;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	EMesherType mesher_type;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	int32 block_size;

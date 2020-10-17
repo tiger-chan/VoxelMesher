@@ -34,7 +34,8 @@ static std::tuple<std::vector<int32_t>, tc::vector3i> big_block(size_t size)
 static std::tuple<std::vector<int32_t>, tc::vector3i> hill(size_t size)
 {
 	auto s = static_cast<int32_t>(size);
-	return make_voxels(tc::vector3i{ -s, -s,0 }, tc::vector3i{ s, s, s }, [s](auto i, auto j, auto k) {
+	return make_voxels(tc::vector3i{ -s, -s, 0 }, tc::vector3i{ s, s, s },
+			   [s](auto i, auto j, auto k) {
 				   return j <= s * exp(-(i * i + k * k) / 64.0);
 			   });
 }
@@ -81,8 +82,17 @@ void ATestMesh::BeginPlay()
 
 	auto &&[block, dimensions] = build_shape(shape, block_size);
 
-	tc::simple<int32_t> mesher{ dimensions.x, dimensions.y, dimensions.z, true };
-	result = mesher.eval(std::begin(block), std::end(block));
+	switch (mesher_type) {
+	case EMesherType::Simple: {
+		tc::simple<int32_t> mesher{ dimensions.x, dimensions.y, dimensions.z, true };
+		result = mesher.eval(std::begin(block), std::end(block));
+	} break;
+
+	case EMesherType::Culling: {
+		tc::culling<int32_t> mesher{ dimensions.x, dimensions.y, dimensions.z, true };
+		result = mesher.eval(std::begin(block), std::end(block));
+	} break;
+	}
 }
 
 void ATestMesh::Step()
@@ -120,11 +130,13 @@ void ATestMesh::Step()
 		}
 
 		// use offset from "first" for the index of triangles.
-		for (auto& i : quad.get_triange(tc::quad::triangle::first, tc::quad::rotation::cw)) {
+		for (auto &i :
+		     quad.get_triange(tc::quad::triangle::first, tc::quad::rotation::cw)) {
 			triangles.Emplace(first + i);
 		}
 
-		for (auto& i : quad.get_triange(tc::quad::triangle::second, tc::quad::rotation::cw)) {
+		for (auto &i :
+		     quad.get_triange(tc::quad::triangle::second, tc::quad::rotation::cw)) {
 			triangles.Emplace(first + i);
 		}
 	}
