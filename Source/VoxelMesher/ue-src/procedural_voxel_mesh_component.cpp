@@ -28,7 +28,8 @@ TArray<FVoxelMeshData> UProceduralVoxelMeshComponent::generate_meshdata(const tc
 	auto &verts = result.vertices;
 	for (auto k = 0; k < result.quads.size(); ++k) {
 		const auto &quad = result.quads[k];
-		auto& r = get_mesh_data(quad.type_id);
+		auto type_id = quad.type_id == tc::weaver::unset_voxel_id ? 0 : quad.type_id;
+		auto& r = get_mesh_data(type_id);
 		auto first = r.vertices.Num();
 		auto uv = std::begin(quad.uv);
 

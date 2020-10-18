@@ -27,7 +27,63 @@ namespace tc
 
 			std::vector<voxel_def> operator()(const int32_t &, voxel_face vf) const
 			{
-				return std::vector<voxel_def>{ voxel_def{min, max, translation, cull_face} };
+				switch (vf) {
+					case voxel_face::back:
+					case voxel_face::bottom: {
+						return std::vector<voxel_def>{
+							voxel_def{min, max, translation, cull_face}
+						};
+					};
+
+					case voxel_face::right:
+					case voxel_face::left: {
+						vector3d step_one {
+							max.x,
+							max.y,
+							max.z * 0.5,
+						};
+						vector2d uv_step_one_min{ 0.0, 0.0 };
+						vector2d uv_step_one_max { 1.0, 0.5 };
+
+						vector3d step_two {
+							min.x,
+							max.y * 0.5,
+							max.z * 0.5,
+						};
+
+						vector2d uv_step_two_min{ 0.5, 0.5 };
+						vector2d uv_step_two_max { 1.0, 1.0 };
+
+						return std::vector<voxel_def>{
+							voxel_def{min, step_one, translation, cull_face, uv_step_one_min, uv_step_one_max},
+							voxel_def{step_two, max, translation, cull_face, uv_step_two_min, uv_step_two_max}
+						};
+					}
+					case voxel_face::front:
+					case voxel_face::top: {
+						vector3d step_one {
+							max.x,
+							max.y * 0.5,
+							max.z * 0.5,
+						};
+
+						vector3d step_two {
+							0.0,
+							max.y * 0.5,
+							max.z * 0.5,
+						};
+
+						return std::vector<voxel_def>{
+							voxel_def{min, step_one, translation, cull_face},
+							voxel_def{step_two, max, translation, cull_face}
+						};
+					};
+
+					default: {
+						return std::vector<voxel_def>{
+						};
+					}
+				}
 			}
 
 			vector3d min{0.0, 0.0, 0.0};
