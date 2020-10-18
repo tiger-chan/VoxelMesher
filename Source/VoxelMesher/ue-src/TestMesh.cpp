@@ -82,15 +82,22 @@ void ATestMesh::BeginPlay()
 
 	auto &&[block, dimensions] = build_shape(shape, block_size);
 
+	tc::weaver::voxel_reader<int32_t> reader{
+		tc::vector3d{ block_min.X, block_min.Y, block_min.Z },
+		tc::vector3d{ block_max.X, block_max.Y, block_max.Z },
+		tc::vector3d{ translate.X, translate.Y, translate.Z },
+		cull_face
+	};
+
 	switch (mesher_type) {
 	case EMesherType::Simple: {
 		tc::simple<int32_t> mesher{ dimensions.x, dimensions.y, dimensions.z, true };
-		result = mesher.eval(std::begin(block), std::end(block));
+		result = mesher.eval(std::begin(block), std::end(block), reader);
 	} break;
 
 	case EMesherType::Culling: {
 		tc::culling<int32_t> mesher{ dimensions.x, dimensions.y, dimensions.z, true };
-		result = mesher.eval(std::begin(block), std::end(block));
+		result = mesher.eval(std::begin(block), std::end(block), reader);
 	} break;
 	}
 }

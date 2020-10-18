@@ -27,11 +27,13 @@ namespace tc
 
 			std::vector<voxel_def> operator()(const int32_t &, voxel_face vf) const
 			{
-				vector3d min{0.0, 0.0, 0.0};
-				vector3d max{1.0, 1.0, 1.0};
-				vector3d translation{ 5.0, 2.0, 1.0 };
-				return std::vector<voxel_def>{ voxel_def{min, max, translation} };
+				return std::vector<voxel_def>{ voxel_def{min, max, translation, cull_face} };
 			}
+
+			vector3d min{0.0, 0.0, 0.0};
+			vector3d max{1.0, 1.0, 1.0};
+			vector3d translation{ 0.0, 0.0, 0.0 };
+			bool cull_face{false};
 		};
 	}
 }
@@ -77,6 +79,18 @@ class VOXELMESHER_API ATestMesh : public AActor {
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	int32 block_size;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	FVector block_min;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	FVector block_max;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	FVector translate;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	bool cull_face;
 
 	UFUNCTION(BlueprintCallable)
 	void Step();
