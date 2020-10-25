@@ -2,3 +2,6 @@
 [submodule "Source/ThirdParty/VoxelMesherLibrary/weaver"]
 	path = Source/ThirdParty/VoxelMesherLibrary/weaver
 	url = https://github.com/tiger-chan/weaver.git
+[submodule "Source/ThirdParty/VoxelMesherLibrary/nlohmann"]
+	path = Source/ThirdParty/VoxelMesherLibrary/nlohmann
+	url = https://github.com/nlohmann/json.git

@@ -33,11 +33,11 @@ class VOXELMESHER_API UProceduralVoxelMeshComponent : public UProceduralMeshComp
 	GENERATED_BODY()
 
     public:
-	template <typename Iter, typename Mesher>
-	void draw_voxels(Iter begin, Iter end, Mesher &mesher, bool create_collision = false)
+	template <typename Iter, typename Mesher, typename Reader>
+	void draw_voxels(Iter begin, Iter end, Mesher &mesher, Reader reader = {}, bool create_collision = false)
 	{
 		auto result =
-			mesher.eval(std::forward<Iter>(begin), std::forward<Iter>(end));
+			mesher.eval(std::forward<Iter>(begin), std::forward<Iter>(end), reader);
 		auto voxel_data = generate_meshdata(result);
 
 		for (auto i = 0; i < voxel_data.Num(); ++i)

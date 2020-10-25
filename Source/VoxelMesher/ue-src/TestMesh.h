@@ -3,9 +3,11 @@
 #include "CoreMinimal.h"
 
 #include "GameFramework/Actor.h"
-#include "ProceduralMeshComponent.h"
+#include "procedural_voxel_mesh_component.h"
 #include "Materials/MaterialInterface.h"
 #include "weaver/mesher.hpp"
+#include "nlohmann/json.hpp"
+#include "weaver/core/voxel_def.hpp"
 #include "TestMesh.generated.h"
 
 namespace tc
@@ -25,71 +27,31 @@ namespace tc
 				return v;
 			}
 
-			std::vector<voxel_def> operator()(const int32_t &, voxel_face vf) const
+			std::vector<voxel_face_result> operator()(const int32_t &, voxel_face vf) const
 			{
-				switch (vf) {
-					case voxel_face::back:
-					case voxel_face::bottom: {
-						return std::vector<voxel_def>{
-							voxel_def{min, max, translation, cull_face}
-						};
-					};
-
-					case voxel_face::right:
-					case voxel_face::left: {
-						vector3d step_one {
-							max.x,
-							max.y,
-							max.z * 0.5,
-						};
-						vector2d uv_step_one_min{ 0.0, 0.0 };
-						vector2d uv_step_one_max { 1.0, 0.5 };
-
-						vector3d step_two {
-							min.x,
-							max.y * 0.5,
-							max.z * 0.5,
-						};
-
-						vector2d uv_step_two_min{ 0.5, 0.5 };
-						vector2d uv_step_two_max { 1.0, 1.0 };
-
-						return std::vector<voxel_def>{
-							voxel_def{min, step_one, translation, cull_face, uv_step_one_min, uv_step_one_max},
-							voxel_def{step_two, max, translation, cull_face, uv_step_two_min, uv_step_two_max}
-						};
-					}
-					case voxel_face::front:
-					case voxel_face::top: {
-						vector3d step_one {
-							max.x,
-							max.y * 0.5,
-							max.z * 0.5,
-						};
-
-						vector3d step_two {
-							0.0,
-							max.y * 0.5,
-							max.z * 0.5,
-						};
-
-						return std::vector<voxel_def>{
-							voxel_def{min, step_one, translation, cull_face},
-							voxel_def{step_two, max, translation, cull_face}
-						};
-					};
-
-					default: {
-						return std::vector<voxel_def>{
-						};
-					}
+				std::vector<voxel_face_result> results;
+				if (!def) {
+					return results;
 				}
+				
+				for (auto&& component: def->components) {
+					auto face = component.faces.find(vf);
+					if (face == std::end(component.faces)) {
+						continue;
+					}
+
+					results.emplace_back(voxel_face_result{
+						component.min,
+						component.max,
+						component.translate,
+						face->second
+					});
+				}
+
+				return results;
 			}
 
-			vector3d min{0.0, 0.0, 0.0};
-			vector3d max{1.0, 1.0, 1.0};
-			vector3d translation{ 0.0, 0.0, 0.0 };
-			bool cull_face{false};
+			tc::voxel_def* def{nullptr};
 		};
 	}
 }
@@ -99,7 +61,7 @@ enum class ETestShape : uint8
 {
 	Block,
 	Hill,
-	Valley
+	Valley,
 };
 
 UENUM(BlueprintType)
@@ -118,42 +80,56 @@ class VOXELMESHER_API ATestMesh : public AActor {
 	protected:
 	void BeginPlay() override;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Block)
 	USceneComponent *scene_root{ nullptr };
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-	UProceduralMeshComponent *procedural_mesh{ nullptr };
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Block)
+	UProceduralVoxelMeshComponent *procedural_mesh{ nullptr };
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Block)
 	UMaterialInterface* material{nullptr};
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Block)
 	ETestShape shape;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Block)
 	EMesherType mesher_type;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Block)
 	int32 block_size;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Block)
 	FVector block_min;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Block)
 	FVector block_max;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Block)
 	FVector translate;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Block)
 	bool cull_face;
 
 	UFUNCTION(BlueprintCallable)
-	void Step();
+	void ReloadBlockDef();
 
-	UFUNCTION(BlueprintCallable)
-	void CompleteSteps();
+	void run_mesher();
+
+	UPROPERTY(EditAnywhere, meta = (RelativePath, RelativeToGameContentDir), Category = Block)
+	FDirectoryPath block_def_dir{ };
+
+	UPROPERTY(EditAnywhere, Category = Block)
+	FString drawn_block_name{ };
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Block)
+	class UDataTable* block_material_mapping;
+
+	TMap<uint32_t, FName> block_ids;
 
 	tc::mesher_result result;
 	int32_t step{0};
+
+	std::unordered_map<std::string, nlohmann::json> raw_block_json;
+	std::unordered_map<std::string, tc::voxel_def> voxel_definitions;
+	tc::weaver::voxel_reader<int32_t> reader;
 };

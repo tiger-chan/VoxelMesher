@@ -14,6 +14,7 @@ public class VoxelMesherLibrary : ModuleRules
 
 		PublicIncludePaths.AddRange(new string[] {
 				Path.Combine(plugin_dir, "weaver", "src"),
+				Path.Combine(plugin_dir, "nlohmann", "include"),
 			});
 	}
 }
