@@ -17,6 +17,7 @@ struct FVoxelMeshData {
 	TArray<FLinearColor> vertex_colors;
 	TArray<FProcMeshTangent> tangents;
 	tc::weaver::voxel_id_t voxel_type;
+	FName material_id;
 };
 
 USTRUCT(BlueprintType)
@@ -48,9 +49,9 @@ class VOXELMESHER_API UProceduralVoxelMeshComponent : public UProceduralMeshComp
 			data.uvs, data.vertex_colors, data.tangents,
 			create_collision);
 			
-			auto name = (*block_name_map)[data.voxel_type];
+			//auto name = (*block_name_map)[data.voxel_type];
 			static const FString context{ TEXT("UProceduralVoxelMeshComponent::draw_voxels") };
-			if (auto material_row = block_material_mapping->FindRow<FBlockMaterialRow>(name, context ))
+			if (auto material_row = block_material_mapping->FindRow<FBlockMaterialRow>(data.material_id, context ))
 			{
 				SetMaterial(i, material_row->Material.LoadSynchronous());
 			}

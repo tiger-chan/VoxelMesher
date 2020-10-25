@@ -5,16 +5,16 @@
 TArray<FVoxelMeshData> UProceduralVoxelMeshComponent::generate_meshdata(const tc::mesher_result& result)
 {
 	TArray<FVoxelMeshData> results;
-	std::unordered_map<tc::weaver::voxel_id_t, uint32_t> voxel_types;
+	std::unordered_map<std::string_view, uint32_t> voxel_types;
 	const auto alloc_vert_size = (result.quads.size() * 4) / 2;
 	const auto alloc_quad_size = (result.quads.size() * 6) / 2;
 
-	auto get_mesh_data = [&results, &voxel_types, alloc_vert_size, alloc_quad_size](tc::weaver::voxel_id_t id) -> FVoxelMeshData& {
+	auto get_mesh_data = [&results, &voxel_types, alloc_vert_size, alloc_quad_size](std::string_view id) -> FVoxelMeshData& {
 		auto data = voxel_types.find(id);
 		if (data == std::end(voxel_types)) {
 			voxel_types.emplace(id, results.Num());
 			FVoxelMeshData& r = results.Emplace_GetRef();
-			r.voxel_type = id;
+			r.material_id = UTF8_TO_TCHAR(id.data());
 			r.vertices.Reserve(alloc_vert_size);
 			r.normals.Reserve(alloc_vert_size);
 			r.uvs.Reserve(alloc_vert_size);
@@ -28,8 +28,7 @@ TArray<FVoxelMeshData> UProceduralVoxelMeshComponent::generate_meshdata(const tc
 	auto &verts = result.vertices;
 	for (auto k = 0; k < result.quads.size(); ++k) {
 		const auto &quad = result.quads[k];
-		auto type_id = quad.type_id == tc::weaver::unset_voxel_id ? 0 : quad.type_id;
-		auto& r = get_mesh_data(type_id);
+		auto& r = get_mesh_data(quad.material_id);
 		auto first = r.vertices.Num();
 		auto uv = std::begin(quad.uv);
 

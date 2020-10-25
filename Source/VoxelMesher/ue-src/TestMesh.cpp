@@ -91,6 +91,8 @@ void ATestMesh::run_mesher()
 	procedural_mesh->block_material_mapping = block_material_mapping;
 	procedural_mesh->block_name_map = &block_ids;
 
+	procedural_mesh->ClearAllMeshSections();
+
 	switch (mesher_type) {
 	case EMesherType::Simple: {
 		tc::simple<int32_t> mesher{ dimensions.x, dimensions.y, dimensions.z, true };

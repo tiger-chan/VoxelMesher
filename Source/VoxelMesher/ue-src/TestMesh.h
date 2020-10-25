@@ -44,7 +44,10 @@ namespace tc
 						component.min,
 						component.max,
 						component.translate,
-						face->second
+						face->second.uv_min,
+						face->second.uv_max,
+						face->second.material,
+						face->second.cull
 					});
 				}
 
