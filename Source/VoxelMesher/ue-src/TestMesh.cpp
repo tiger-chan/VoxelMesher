@@ -89,7 +89,6 @@ void ATestMesh::run_mesher()
 	auto &&[block, dimensions] = build_shape(shape, block_size);
 
 	procedural_mesh->block_material_mapping = block_material_mapping;
-	procedural_mesh->block_name_map = &block_ids;
 
 	procedural_mesh->ClearAllMeshSections();
 
@@ -110,7 +109,7 @@ void ATestMesh::run_mesher()
 void ATestMesh::ReloadBlockDef()
 {
 	if (!block_def_dir.Path.IsEmpty()) {
-		auto &&[ raw_blocks, voxels ] = VoxelMesher::load_directory(block_def_dir);
+		auto &&[ raw_blocks, voxels, name_lookup ] = VoxelMesher::load_directory(block_def_dir);
 		raw_block_json = raw_blocks;
 		voxel_definitions = voxels;
 		if (!drawn_block_name.IsEmpty()) {

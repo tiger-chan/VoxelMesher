@@ -7,10 +7,12 @@
 #include "Engine/EngineTypes.h"
 #include "nlohmann/json.hpp"
 #include "weaver/core/voxel_def.hpp"
+#include "weaver/core/voxel_loader.hpp"
+#include <string_view>
 
 namespace VoxelMesher
 {
-	std::tuple<std::unordered_map<std::string, nlohmann::json>, std::unordered_map<std::string, tc::voxel_def>> VOXELMESHER_API load_directory(const FDirectoryPath &path);
+	tc::weaver::voxel_load_result VOXELMESHER_API load_directory(const FDirectoryPath &path);
 }
 
 #endif // MINERVA_RECURSIVE_JSON_LOADER_HPP

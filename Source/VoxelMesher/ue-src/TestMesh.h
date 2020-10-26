@@ -8,6 +8,7 @@
 #include "weaver/mesher.hpp"
 #include "nlohmann/json.hpp"
 #include "weaver/core/voxel_def.hpp"
+#include <string_view>
 #include "TestMesh.generated.h"
 
 namespace tc
@@ -132,7 +133,7 @@ class VOXELMESHER_API ATestMesh : public AActor {
 	tc::mesher_result result;
 	int32_t step{0};
 
-	std::unordered_map<std::string, nlohmann::json> raw_block_json;
-	std::unordered_map<std::string, tc::voxel_def> voxel_definitions;
+	std::unordered_map<std::string_view, nlohmann::json> raw_block_json;
+	std::unordered_map<std::string_view, tc::voxel_def> voxel_definitions;
 	tc::weaver::voxel_reader<int32_t> reader;
 };

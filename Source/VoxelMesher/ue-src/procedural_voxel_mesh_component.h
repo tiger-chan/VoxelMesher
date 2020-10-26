@@ -49,7 +49,6 @@ class VOXELMESHER_API UProceduralVoxelMeshComponent : public UProceduralMeshComp
 			data.uvs, data.vertex_colors, data.tangents,
 			create_collision);
 			
-			//auto name = (*block_name_map)[data.voxel_type];
 			static const FString context{ TEXT("UProceduralVoxelMeshComponent::draw_voxels") };
 			if (auto material_row = block_material_mapping->FindRow<FBlockMaterialRow>(data.material_id, context ))
 			{
@@ -59,7 +58,6 @@ class VOXELMESHER_API UProceduralVoxelMeshComponent : public UProceduralMeshComp
 	}
 
 	UDataTable* block_material_mapping{ nullptr };
-	TMap<uint32_t, FName>* block_name_map { nullptr };
 
     private:
 	TArray<FVoxelMeshData> generate_meshdata(const tc::mesher_result &mesher_result);

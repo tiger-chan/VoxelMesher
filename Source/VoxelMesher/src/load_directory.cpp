@@ -5,7 +5,7 @@
 #include "weaver/core/voxel_loader.hpp"
 
 namespace VoxelMesher {
-	std::tuple<std::unordered_map<std::string, nlohmann::json>, std::unordered_map<std::string, tc::voxel_def>> load_directory(const FDirectoryPath &path)
+	tc::weaver::voxel_load_result load_directory(const FDirectoryPath &path)
 	{
 		auto p = path.Path;
 		if (FPaths::IsRelative(p))
