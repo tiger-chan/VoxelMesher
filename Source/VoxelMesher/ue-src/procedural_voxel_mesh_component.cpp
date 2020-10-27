@@ -43,6 +43,13 @@ TArray<FVoxelMeshData> UProceduralVoxelMeshComponent::generate_meshdata(const tc
 			r.uvs.Emplace(
 				FVector2D{ static_cast<float>(uv->x), static_cast<float>(uv->y) });
 			++uv;
+
+			float color = static_cast<float>(floor(quad[0].z) / 256.0);
+			r.vertex_colors.Emplace(FLinearColor{
+				color,
+				color,
+				color
+			});
 		}
 
 		// use offset from "first" for the index of triangles.
